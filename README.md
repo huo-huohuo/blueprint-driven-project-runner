@@ -43,13 +43,13 @@ This is for projects where ordinary long-running AI goals become vague, repetiti
 Clone this repository into your Codex skills directory:
 
 ```bash
-git clone https://github.com/666666hhhhhh666666/blueprint-driven-project-runner.git ~/.codex/skills/blueprint-driven-project-runner
+git clone https://github.com/huo-huohuo/blueprint-driven-project-runner.git ~/.codex/skills/blueprint-driven-project-runner
 ```
 
 On Windows PowerShell:
 
 ```powershell
-git clone https://github.com/666666hhhhhh666666/blueprint-driven-project-runner.git "$env:USERPROFILE\.codex\skills\blueprint-driven-project-runner"
+git clone https://github.com/huo-huohuo/blueprint-driven-project-runner.git "$env:USERPROFILE\.codex\skills\blueprint-driven-project-runner"
 ```
 
 Restart Codex or reload skills if needed. Then ask Codex to use:
