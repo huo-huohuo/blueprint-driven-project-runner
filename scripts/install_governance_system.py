@@ -46,17 +46,18 @@ For large or long-running AI-assisted work, follow the project operating standar
 
 Core rules:
 
-- No executable blueprint, no implementation.
+- No executable blueprint, no execution ledger, no long-running implementation.
 - A summary, PRD paragraph, or feature list cannot authorize broad code changes.
-- Broad work requires ready executable blueprint records and an execution contract.
+- Broad work requires ready executable blueprint records, execution ledger rows, and an execution contract.
 - Technical/backend records require user-checkable previews such as checklists, before/after examples, state tables, boundaries, failure matrices, and evidence plans.
-- Before long-running execution, generate a goal prompt from ready blueprint records; blueprint completion is the first principle.
+- Before long-running execution, compile `docs/ai-control/91-execution-ledger.md`, then generate a goal prompt from ready blueprint records; blueprint and ledger completion are the first principle.
 - Run `python tools/ai-control/lint_blueprints.py --project .` before Execution mode when blueprint files exist.
 - Use `python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record "<record-id>"` to create goal-mode prompts.
 - Use `python tools/ai-control/status.py --project .` to inspect project progress.
 - Use `python tools/ai-control/lint_goal_prompt.py --project .` before starting a generated goal prompt.
 - Use `python tools/ai-control/generate_handoff_package.py --project . --module "<module>" --record "<record-id>" --work-slice "<slice-id>"` to start a fresh thread with bounded context.
 - Do not perform high-risk actions without explicit user confirmation: external side effects, production-like writes, deletion, schema or migration changes, access-control changes, deployment changes, background cursor or offset mutation, or bulk automated actions.
+- Ordinary in-scope local reads, local edits, local tests, local evidence files, and control-doc updates are covered by the execution contract; if a high-risk action is blocked, shelve that ledger row and continue with independent rows.
 - If work drifts, stop implementation, classify changed files, and update `docs/ai-control/92-drift-log.md`.
 
 {END}
@@ -100,11 +101,13 @@ Run this before broad implementation.
 - `docs/ai-control/00-operating-standard.md` read.
 - Relevant module blueprints read.
 - Blueprint records are `ready` or `accepted`.
+- Execution ledger rows exist for long-running work.
 - Execution contract exists.
 - Allowed files and forbidden files are explicit.
 - Data-write policy is explicit.
 - Verification plan is explicit.
 - High-risk actions have explicit user confirmation.
+- Permission-blocked nonessential work has a ledger row status of `blocked` or `shelved` with a resume condition.
 - Goal prompt is generated from ready blueprint records before long-running execution.
 - Goal prompt passes lint before target-mode execution.
 - Handoff package exists for new long-running module threads.

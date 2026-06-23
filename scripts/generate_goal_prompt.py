@@ -122,7 +122,13 @@ def ensure_ready(record: dict[str, object], record_id: str) -> None:
         raise ValueError(f"{record_id}: status is {status!r}, not ready/accepted")
 
 
-def render_prompt(root: Path, module: str, records: list[dict[str, object]], work_slice: str | None) -> str:
+def render_prompt(
+    root: Path,
+    module: str,
+    records: list[dict[str, object]],
+    work_slice: str | None,
+    ledger_rows: list[str] | None = None,
+) -> str:
     record_sections: list[str] = []
     verification_lines: list[str] = []
     forbidden_lines: list[str] = []
@@ -147,6 +153,7 @@ Acceptance:
 
     record_ids = ", ".join(compact(record.get("ID", [])) for record in records)  # type: ignore[arg-type]
     slice_value = work_slice or "DECISION_NEEDED: provide or create a bounded work slice before editing"
+    ledger_row_lines = "\n".join(f"- {row}" for row in (ledger_rows or [])) or "- DECISION_NEEDED: create ledger rows before long-running execution"
 
     return f"""# Goal Prompt: {module}
 
@@ -160,7 +167,7 @@ Mode: Execution
 
 ## First Principle
 
-Complete the referenced executable blueprint records exactly, with evidence. Do not optimize beyond the records, invent adjacent work, or rewrite unrelated areas.
+Complete the referenced executable blueprint records and execution ledger rows exactly, with evidence. Do not optimize beyond the records, invent adjacent work, or rewrite unrelated areas.
 
 ## Read First
 
@@ -169,6 +176,7 @@ Complete the referenced executable blueprint records exactly, with evidence. Do 
 - docs/ai-control/00-control-index.md
 - relevant module blueprint files
 - relevant work-slices.md
+- docs/ai-control/91-execution-ledger.md
 - current git status
 
 ## Blueprint Records
@@ -181,6 +189,14 @@ ID: {slice_value}
 Blueprint Records: {record_ids}
 Outcome: implement and verify only the referenced records.
 Appetite: bounded to the referenced records and their verification plan.
+
+## Execution Ledger
+
+Ledger file: docs/ai-control/91-execution-ledger.md
+Rows:
+{ledger_row_lines}
+
+Work one ledger row at a time. Mark a row verified only after evidence passes. Mark it blocked or shelved with a reason and resume condition if it cannot be completed, then continue to the next independent row.
 
 ## Allowed Changes
 
@@ -217,11 +233,11 @@ Appetite: bounded to the referenced records and their verification plan.
 ## Stop Conditions
 
 Stop when:
-- referenced blueprint records are implemented and verified
+- referenced blueprint records and ledger rows are implemented and verified or explicitly shelved/skipped with reasons
 - a required change exceeds allowed scope
 - blueprint contradiction is found
 - verification cannot run
-- high-risk action needs confirmation
+- high-risk action needs confirmation and cannot be shelved while independent rows remain
 - unrelated worktree changes may be overwritten
 
 ## Unexpected Discoveries
@@ -236,6 +252,7 @@ def main() -> int:
     parser.add_argument("--module", required=True, help="Module name")
     parser.add_argument("--record", action="append", dest="records", required=True, help="Blueprint record ID; may repeat")
     parser.add_argument("--work-slice", help="Optional work slice ID")
+    parser.add_argument("--ledger-row", action="append", dest="ledger_rows", help="Execution ledger row ID; may repeat")
     parser.add_argument("--out", help="Write prompt to this file instead of stdout")
     args = parser.parse_args()
 
@@ -253,7 +270,7 @@ def main() -> int:
             raise SystemExit(f"ERROR: {exc}") from exc
         selected.append(record)
 
-    prompt = render_prompt(root, args.module, selected, args.work_slice)
+    prompt = render_prompt(root, args.module, selected, args.work_slice, args.ledger_rows)
 
     if args.out:
         out = Path(args.out).resolve()

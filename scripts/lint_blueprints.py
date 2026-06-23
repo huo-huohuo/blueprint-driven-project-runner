@@ -34,6 +34,7 @@ FIELD_NAMES = [
 READY_STATUSES = {"ready", "accepted"}
 WEAK_VALUES = {"", "-", "tbd", "todo", "n/a", "none"}
 TECHNICAL_TYPES = {"engineering", "data", "integration", "automation", "infrastructure", "safety", "ops"}
+DETAIL_FIELDS = ["Target Behavior", "Preview", "Acceptance", "Verification"]
 TECHNICAL_PREVIEW_TERMS = [
     "business flow",
     "before/after",
@@ -102,6 +103,11 @@ def weak(value: str) -> bool:
     return cleaned in WEAK_VALUES
 
 
+def detail_score(value: str) -> int:
+    tokens = re.findall(r"[A-Za-z0-9_\-/]+|[\u4e00-\u9fff]", value)
+    return len(tokens)
+
+
 def parse_records(text: str) -> list[dict[str, list[str]]]:
     records: list[dict[str, list[str]]] = []
     current: dict[str, list[str]] | None = None
@@ -166,6 +172,11 @@ def lint_file(path: Path) -> tuple[int, list[Issue]]:
 
         if "NOT_CHECKED" in compact(record.get("Current Evidence", [])):
             issues.append(Issue("WARN", path, f"{label}: current evidence is NOT_CHECKED"))
+
+        for field in DETAIL_FIELDS:
+            value = compact(record.get(field, []))
+            if not weak(value) and "DECISION_NEEDED" not in value and detail_score(value) < 8:
+                issues.append(Issue("WARN", path, f"{label}: {field} looks too thin for reliable execution"))
 
         record_type = compact(record.get("Type", [])).lower()
         preview = compact(record.get("Preview", []))

@@ -20,6 +20,7 @@ FIELD_RE = re.compile(
     r"^(ID|Type|Source|Current Evidence|Target Behavior|Forbidden Result|Preview|Acceptance|Verification|Owner|Status|Confidence|Open Questions):\s*(.*)$"
 )
 HILL_VALUES = {"raw", "shaped", "validated", "executing", "verified", "accepted"}
+LEDGER_STATUSES = {"planned", "active", "blocked", "shelved", "skipped", "verified", "accepted"}
 
 
 def slug(value: str) -> str:
@@ -89,6 +90,69 @@ def goal_prompt_files(ai_control: Path) -> list[Path]:
     return sorted(set(files))
 
 
+def parse_markdown_table(lines: list[str]) -> list[dict[str, str]]:
+    header: list[str] | None = None
+    rows: list[dict[str, str]] = []
+    for raw in lines:
+        line = raw.strip()
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if not cells:
+            continue
+        if all(set(cell) <= {"-", ":", " "} for cell in cells):
+            continue
+        if header is None:
+            header = cells
+            continue
+        padded = cells + [""] * max(0, len(header) - len(cells))
+        rows.append(dict(zip(header, padded)))
+    return rows
+
+
+def parse_execution_ledger(ai_control: Path) -> dict[str, Any]:
+    path = ai_control / "91-execution-ledger.md"
+    result: dict[str, Any] = {
+        "exists": path.exists(),
+        "path": str(path),
+        "rows": 0,
+        "statuses": Counter(),
+        "accepted": 0,
+        "open": 0,
+    }
+    if not path.exists():
+        return result
+
+    task_lines: list[str] = []
+    in_task_queue = False
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        stripped = raw.strip()
+        if stripped.startswith("## "):
+            in_task_queue = stripped.lower() == "## task queue"
+            continue
+        if in_task_queue:
+            task_lines.append(raw)
+
+    rows = parse_markdown_table(task_lines)
+    for row in rows:
+        row_id = row.get("ID", "").strip()
+        if not row_id or row_id.lower() == "id":
+            continue
+        status = row.get("Status", "").strip().lower() or "unknown"
+        accepted = row.get("Accepted?", "").strip().lower()
+        if status not in LEDGER_STATUSES:
+            status = status or "unknown"
+        result["rows"] += 1
+        result["statuses"][status] += 1
+        if status == "accepted" or accepted in {"yes", "y", "true"}:
+            result["accepted"] += 1
+        elif status not in {"skipped"}:
+            result["open"] += 1
+
+    result["statuses"] = dict(result["statuses"])
+    return result
+
+
 def parse_work_slices(ai_control: Path) -> list[dict[str, str]]:
     slices: list[dict[str, str]] = []
     for path in sorted(ai_control.rglob("work-slices.md")):
@@ -144,6 +208,7 @@ def build_status(root: Path) -> dict[str, Any]:
         modules[module]["goal_prompts"] += 1
 
     work_slices = parse_work_slices(ai_control)
+    execution_ledger = parse_execution_ledger(ai_control)
     for item in work_slices:
         module = item["module"]
         modules[module]["work_slices"] += 1
@@ -166,6 +231,11 @@ def build_status(root: Path) -> dict[str, Any]:
         "goal_prompts": len(goal_prompt_files(ai_control)),
         "work_slices": len(work_slices),
         "executing_slices": sum(1 for item in work_slices if item["hill"] == "executing"),
+        "execution_ledger_exists": execution_ledger["exists"],
+        "execution_ledger_rows": execution_ledger["rows"],
+        "execution_ledger_statuses": execution_ledger["statuses"],
+        "execution_ledger_accepted": execution_ledger["accepted"],
+        "execution_ledger_open": execution_ledger["open"],
         "decision_needed": sum(data["decision_needed"] for data in modules.values()),
         "evidence_pending": sum(data["evidence_pending"] for data in modules.values()),
     }
@@ -183,7 +253,7 @@ def build_status(root: Path) -> dict[str, Any]:
             "executing_slices": data["executing_slices"],
         }
 
-    return {"summary": summary, "modules": normalized_modules}
+    return {"summary": summary, "modules": normalized_modules, "execution_ledger": execution_ledger}
 
 
 def render_markdown(status: dict[str, Any]) -> str:
@@ -204,6 +274,10 @@ def render_markdown(status: dict[str, Any]) -> str:
         f"- Goal prompts: {summary['goal_prompts']}",
         f"- Work slices: {summary['work_slices']}",
         f"- Executing slices: {summary['executing_slices']}",
+        f"- Execution ledger installed: {summary['execution_ledger_exists']}",
+        f"- Execution ledger rows: {summary['execution_ledger_rows']}",
+        f"- Execution ledger statuses: {summary['execution_ledger_statuses']}",
+        f"- Execution ledger accepted/open: {summary['execution_ledger_accepted']} / {summary['execution_ledger_open']}",
         f"- Decision needed / blockers: {summary['decision_needed']}",
         f"- Evidence pending: {summary['evidence_pending']}",
         "",
@@ -239,6 +313,8 @@ def render_markdown(status: dict[str, Any]) -> str:
         lines.append("- Install the governance system first.")
     elif summary["decision_needed"]:
         lines.append("- Resolve `DECISION_NEEDED`, draft, or needs-decision records before execution.")
+    elif summary["evidence_pending"] and not summary["execution_ledger_rows"]:
+        lines.append("- Compile the execution ledger before starting a long-running goal.")
     elif summary["evidence_pending"] and not summary["goal_prompts"]:
         lines.append("- Generate goal prompts for ready records.")
     elif summary["executing_slices"]:

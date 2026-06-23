@@ -70,6 +70,7 @@ Do not rely on chat history. Read this handoff package first:
 - {out_dir / "goal-prompt.md"}
 - {out_dir / "blueprint-records.md"}
 - {out_dir / "verification-plan.md"}
+- docs/ai-control/91-execution-ledger.md
 
 Then read the project governance files:
 
@@ -77,7 +78,7 @@ Then read the project governance files:
 - docs/ai-control/00-operating-standard.md
 - docs/ai-control/00-control-index.md
 
-Follow the goal prompt exactly. The first principle is to complete the referenced executable blueprint records with evidence, without expanding scope.
+Follow the goal prompt exactly. The first principle is to complete the referenced executable blueprint records and execution ledger rows with evidence, without expanding scope.
 """
 
 
@@ -98,9 +99,14 @@ Package path: `{out_dir}`
 
 Complete only the referenced records. Do not change unrelated modules, expand scope, or implement adjacent ideas.
 
+## Execution Ledger
+
+Use `docs/ai-control/91-execution-ledger.md` as the row-by-row queue. Mark blocked or shelved rows with reason and resume condition instead of stopping the whole run when independent rows remain.
+
 ## Completion Report Must Include
 
 - blueprint record ids addressed
+- execution ledger rows accepted, blocked, shelved, or skipped
 - files changed
 - verification results
 - preview/actual comparison when relevant

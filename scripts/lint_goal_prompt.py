@@ -24,6 +24,7 @@ REQUIRED_SECTIONS = [
     "Read First",
     "Blueprint Records",
     "Work Slice",
+    "Execution Ledger",
     "Allowed Changes",
     "Forbidden Changes",
     "Data Policy",
@@ -122,8 +123,8 @@ def lint_file(path: Path, project: Path | None) -> list[Issue]:
             issues.append(Issue("ERROR", path, f"empty required section: {section}"))
 
     first_principle = sections.get("First Principle", "")
-    if "Complete the referenced executable blueprint records exactly" not in first_principle:
-        issues.append(Issue("ERROR", path, "first principle must require exact blueprint completion"))
+    if "Complete the referenced executable blueprint records" not in first_principle or "execution ledger rows" not in first_principle:
+        issues.append(Issue("ERROR", path, "first principle must require exact blueprint and execution-ledger completion"))
 
     if "DECISION_NEEDED" in text:
         issues.append(Issue("ERROR", path, "contains DECISION_NEEDED"))

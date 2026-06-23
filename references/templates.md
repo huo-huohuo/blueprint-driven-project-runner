@@ -35,7 +35,7 @@ Open Questions:
 ````markdown
 # AI Project Control Index
 
-This project uses blueprint-bound AI execution. Broad implementation must cite executable blueprint records, work slices, allowed scope, forbidden scope, and acceptance evidence.
+This project uses blueprint-bound AI execution. Broad implementation must cite executable blueprint records, execution ledger rows, allowed scope, forbidden scope, and acceptance evidence.
 
 ## Project Root
 
@@ -43,7 +43,7 @@ This project uses blueprint-bound AI execution. Broad implementation must cite e
 
 ## Control Rule
 
-No executable blueprint, no implementation. Summary briefs cannot authorize coding.
+No executable blueprint, no execution ledger, no long-running implementation. Summary briefs cannot authorize coding.
 
 ## Modules
 
@@ -75,7 +75,7 @@ No executable blueprint, no implementation. Summary briefs cannot authorize codi
 
 ## Mode
 
-Intake / Blueprint Compiler / Blueprint Audit / Goal Prompt / Execution / Recovery / Coordination
+Intake / Blueprint Compiler / Blueprint Audit / Ledger Compiler / Goal Prompt / Execution / Recovery / Coordination
 
 ## User Outcome
 
@@ -93,7 +93,7 @@ Short source-aware understanding. This section cannot authorize coding.
 
 ## Next Artifact
 
-Executable blueprint records / work slice / execution contract / evidence report / recovery plan
+Executable blueprint records / work slice / execution ledger / execution contract / evidence report / recovery plan
 ````
 
 ## 4. Product Blueprint
@@ -346,6 +346,7 @@ Complete the referenced executable blueprint records exactly, with evidence. Do 
 - docs/ai-control/00-control-index.md
 - relevant module blueprint files
 - relevant work-slices.md
+- docs/ai-control/91-execution-ledger.md
 - current git status
 
 ## Blueprint Records
@@ -357,6 +358,12 @@ Complete the referenced executable blueprint records exactly, with evidence. Do 
 ID:
 Outcome:
 Appetite:
+
+## Execution Ledger
+
+Ledger file: docs/ai-control/91-execution-ledger.md
+Rows:
+- TODO
 
 ## Allowed Changes
 
@@ -387,11 +394,11 @@ Appetite:
 ## Stop Conditions
 
 Stop when:
-- referenced blueprint records are implemented and verified
+- referenced blueprint records and ledger rows are implemented and verified or explicitly shelved/skipped with reasons
 - a required change exceeds allowed scope
 - blueprint contradiction is found
 - verification cannot run
-- high-risk action needs confirmation
+- high-risk action needs confirmation and cannot be shelved while independent rows remain
 - unrelated worktree changes may be overwritten
 
 ## Unexpected Discoveries
@@ -420,6 +427,10 @@ Execution
 
 - 
 
+## Execution Ledger Row IDs
+
+- TODO
+
 ## Objective
 
 ## Allowed Changes
@@ -443,6 +454,7 @@ Execution
 ## Final Report Required
 
 - blueprint record ids addressed
+- execution ledger rows accepted, blocked, shelved, or skipped
 - files changed
 - evidence collected
 - golden cases pass/fail
@@ -503,9 +515,21 @@ Scoring:
 ````markdown
 # Execution Ledger
 
-| Date | Contract ID | Mode | Blueprint Records | Work Slices | Files Changed | Evidence | Result | Next |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| | | | | | | | | |
+This is the execution queue. Complete one row at a time, verify it, then update the row before moving on.
+
+## Task Queue
+
+| ID | Blueprint Records | Work Slice | Goal | Completion Path | Scope / Files | Acceptance Standard | Verification Method | Evidence | Status | Accepted? | Blocker / Skip Reason | Resume Condition | Updated |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| LEDGER-001 | | | | | | | | | planned | no | | | |
+
+Status values: planned / active / blocked / shelved / skipped / verified / accepted
+
+## Run History
+
+| Date | Contract ID | Ledger Rows | Files Changed | Evidence | Result | Next |
+| --- | --- | --- | --- | --- | --- | --- |
+| | | | | | | |
 ````
 
 ## 14. Drift Log

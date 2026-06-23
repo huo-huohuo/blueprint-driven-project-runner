@@ -1,15 +1,16 @@
 # Blueprint-Driven Project Runner for Codex
 
-A Codex skill and lightweight governance toolkit for running large AI-assisted projects with executable blueprints, bounded goal prompts, verification gates, and thread handoff packages.
+A Codex skill and lightweight governance toolkit for running large AI-assisted projects with executable blueprints, row-by-row execution ledgers, bounded goal prompts, verification gates, and thread handoff packages.
 
-This is for projects where ordinary long-running AI goals become vague, repetitive, or risky. The skill forces the work to start from concrete blueprint records, then generates narrow execution prompts and handoff packages that can be validated.
+This is for projects where ordinary long-running AI goals become vague, repetitive, or risky. The skill forces the work to start from concrete blueprint records, decomposes them into an execution queue, then generates narrow execution prompts and handoff packages that can be validated.
 
 ## What It Provides
 
 - Executable blueprint records with source evidence, target behavior, forbidden results, previews, acceptance criteria, and verification plans.
-- Goal prompt generation that binds execution to specific blueprint record IDs.
+- Execution ledgers that break blueprint completion into rows with goals, completion paths, acceptance standards, verification methods, status, blockers, and resume conditions.
+- Goal prompt generation that binds execution to specific blueprint record IDs and ledger row IDs.
 - Goal prompt linting to catch broad or unsafe instructions such as "continue optimizing" or "fix anything you notice".
-- Project status reporting across blueprints, work slices, blockers, and generated prompts.
+- Project status reporting across blueprints, work slices, execution ledger rows, blockers, and generated prompts.
 - Thread handoff packages so a fresh Codex thread can continue work without relying on hidden chat history.
 - A project governance installer that adds `docs/ai-control` and `tools/ai-control` to a target repository.
 
@@ -17,25 +18,25 @@ This is for projects where ordinary long-running AI goals become vague, repetiti
 
 ```text
 .
-├── SKILL.md
-├── agents/
-│   └── openai.yaml
-├── references/
-│   ├── blueprint-examples.md
-│   ├── goal-prompt-protocol.md
-│   ├── project-operating-standard.md
-│   ├── quality-bars.md
-│   ├── technical-blueprint-questionnaire.md
-│   └── templates.md
-├── scripts/
-│   ├── generate_goal_prompt.py
-│   ├── generate_handoff_package.py
-│   ├── install_governance_system.py
-│   ├── lint_blueprints.py
-│   ├── lint_goal_prompt.py
-│   ├── scaffold_control_pack.py
-│   └── status.py
-└── examples/
+|-- SKILL.md
+|-- agents/
+|   `-- openai.yaml
+|-- references/
+|   |-- blueprint-examples.md
+|   |-- goal-prompt-protocol.md
+|   |-- project-operating-standard.md
+|   |-- quality-bars.md
+|   |-- technical-blueprint-questionnaire.md
+|   `-- templates.md
+|-- scripts/
+|   |-- generate_goal_prompt.py
+|   |-- generate_handoff_package.py
+|   |-- install_governance_system.py
+|   |-- lint_blueprints.py
+|   |-- lint_goal_prompt.py
+|   |-- scaffold_control_pack.py
+|   `-- status.py
+`-- examples/
 ```
 
 ## Install As A Codex Skill
@@ -87,10 +88,10 @@ Lint blueprint records:
 python tools/ai-control/lint_blueprints.py --project .
 ```
 
-Generate a goal prompt from ready blueprint records:
+Generate a goal prompt from ready blueprint records and ledger rows:
 
 ```bash
-python tools/ai-control/generate_goal_prompt.py --project . --module "Inventory" --record INVENTORY-IMPORT-IDEMPOTENCY-001 --work-slice WS-IMPORT-001
+python tools/ai-control/generate_goal_prompt.py --project . --module "Inventory" --record INVENTORY-IMPORT-IDEMPOTENCY-001 --work-slice WS-IMPORT-001 --ledger-row LEDGER-001
 ```
 
 Lint generated goal prompts:
@@ -116,11 +117,12 @@ python tools/ai-control/generate_handoff_package.py --project . --module "Invent
 1. Install the governance system into your project.
 2. Fill in executable blueprint records until each important requirement has stable inputs, behavior, acceptance, and verification.
 3. Run `lint_blueprints.py`.
-4. Generate a bounded goal prompt for one work slice.
-5. Run `lint_goal_prompt.py`.
-6. Execute only that goal prompt.
-7. Report evidence against the blueprint records.
-8. Use `generate_handoff_package.py` when moving work to a fresh thread.
+4. Decompose ready records into `docs/ai-control/91-execution-ledger.md`.
+5. Generate a bounded goal prompt for one work slice and selected ledger rows.
+6. Run `lint_goal_prompt.py`.
+7. Execute one ledger row at a time.
+8. Mark rows accepted, blocked, shelved, or skipped with evidence and resume conditions.
+9. Use `generate_handoff_package.py` when moving work to a fresh thread.
 
 ## Validation
 
@@ -140,7 +142,7 @@ python -m py_compile scripts/*.py
 
 The first principle is simple:
 
-> Complete the referenced executable blueprint records exactly, with evidence, without expanding scope.
+> Complete the referenced executable blueprint records and execution ledger rows exactly, with evidence, without expanding scope.
 
 The skill is intentionally narrow. It does not try to replace product thinking, design judgment, engineering review, or user approval. It gives AI-assisted projects a stable control surface so large work can be planned, executed, reviewed, and resumed with less drift.
 

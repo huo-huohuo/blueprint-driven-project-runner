@@ -17,6 +17,8 @@ The loop is:
 intent -> questionnaire -> discovery brief -> executable blueprint records -> preview checklist -> work slices -> goal prompt -> execution contract -> implementation -> evidence -> ledger
 ```
 
+In long-running work, the loop is not executable until it has an execution task ledger. The ledger turns the blueprint into a row-by-row queue with acceptance criteria and status.
+
 ## Layer Model
 
 Use three layers:
@@ -29,9 +31,11 @@ Do not rely on chat history as the project constitution. For any serious project
 
 ## Non-Negotiable
 
-No executable blueprint, no implementation.
+No executable blueprint, no execution task ledger, no long-running implementation.
 
 A paragraph summary is not a blueprint. A plan is not a blueprint. A PRD-style description is not a blueprint. Only an executable blueprint record can authorize broad implementation.
+
+For long-running work, ready records must be decomposed into ledger rows before Execution mode. A ledger row is the unit Codex completes, verifies, marks accepted, blocks, shelves, or skips.
 
 Emergency bug fixes are allowed, but keep them narrow and record the blueprint gap that allowed the bug.
 
@@ -43,6 +47,7 @@ Use different names for different artifacts:
 - **Executable blueprint record**: atomic construction constraint with source, target behavior, forbidden result, preview, acceptance, and verification.
 - **Preview**: a user-readable representation of the blueprint before implementation. Frontend previews may be visual; technical/backend previews should usually be checklists, state tables, before/after examples, and failure matrices.
 - **Work slice**: bounded implementation unit derived from one or more executable blueprint records.
+- **Execution task ledger**: durable table of planned work rows derived from ready records and work slices. It is the execution queue, not a retrospective note.
 - **Goal prompt**: a handoff prompt generated from ready blueprints and work slices. It constrains goal-mode execution to completing the blueprint, not inventing a new direction.
 - **Execution contract**: per-run permission slip that names allowed files, forbidden files, data policy, and evidence.
 
@@ -134,6 +139,7 @@ Start each substantial response by choosing one mode and one sentence of rationa
 - **Install mode**: install or refresh the project-level governance standard. Do not change product code.
 - **Blueprint Compiler mode**: turn discovery material into executable blueprint records. Do not change product code.
 - **Blueprint Audit mode**: lint existing blueprints for readiness and vagueness. Do not change product code.
+- **Ledger Compiler mode**: decompose ready or near-ready records into an execution task ledger. Do not change product code.
 - **Goal Prompt mode**: generate a target/goal prompt from ready blueprint records and work slices. Do not change product code.
 - **Status mode**: summarize project progress, blockers, ready records, goal prompts, and executing slices. Do not change product code.
 - **Handoff mode**: generate a fresh-thread handoff package from ready records. Do not change product code.
@@ -198,7 +204,37 @@ python scripts/lint_blueprints.py --project <project-root>
 
 If the linter is unavailable, manually apply the Blueprint Definition Of Ready. Treat failures as blockers, not suggestions.
 
-### 4. Goal Prompt Gate
+### 4. Execution Ledger Gate
+
+Before a long-running goal starts, create or update `docs/ai-control/91-execution-ledger.md`.
+
+The task ledger must include at least:
+
+- task id
+- blueprint record ids
+- work slice id
+- goal
+- completion path
+- scope or files
+- acceptance standard
+- verification method
+- evidence
+- status
+- accepted?
+- blocker or skip reason
+- resume condition
+
+Required row statuses:
+
+```text
+planned / active / blocked / shelved / skipped / verified / accepted
+```
+
+Use `blocked` when the row cannot proceed but may be retried soon. Use `shelved` when it needs outside input, high-risk confirmation, missing access, or a separate decision. Use `skipped` only when the row is no longer needed or is superseded by accepted work.
+
+Do not enter long-running Execution mode from a prose plan. Execution must cite the ledger file and the row ids it will advance.
+
+### 5. Goal Prompt Gate
 
 After blueprints are ready and before a long-running goal starts, generate a goal prompt that makes blueprint fulfillment the first principle.
 
@@ -209,6 +245,7 @@ A goal prompt must include:
 - governing docs to read first
 - blueprint record ids
 - work slice ids
+- execution ledger file and row ids
 - first principle: complete the referenced blueprints exactly
 - allowed files/directories
 - forbidden files/directories
@@ -232,13 +269,14 @@ If the project has a local copy, prefer:
 python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record <RECORD-ID>
 ```
 
-### 5. Contract Gate
+### 6. Contract Gate
 
 Every execution run needs:
 
 - contract id and date
 - mode
 - blueprint record ids and work slice ids
+- execution ledger row ids
 - objective
 - allowed files/directories
 - forbidden files/directories
@@ -249,7 +287,7 @@ Every execution run needs:
 
 If a necessary change touches forbidden scope, stop and report. Do not expand the contract silently.
 
-### 6. Evidence Gate
+### 7. Evidence Gate
 
 Completion requires evidence. Choose the strongest feasible evidence:
 
@@ -275,11 +313,12 @@ When asked to "make a blueprint":
 6. Mark missing fields as `DECISION_NEEDED`.
 7. Add records to the relevant blueprint files if the user asked for project artifacts.
 8. Create work slices from ready or near-ready records.
-9. Produce a decision queue for records that are not ready.
-10. If records are ready and the user wants execution, generate a goal prompt instead of starting broad work directly.
-11. Stop before implementation unless the user explicitly approves Execution mode.
+9. Create or update the execution task ledger with row-level goals, completion paths, acceptance standards, verification, status, and skip/resume rules.
+10. Produce a decision queue for records that are not ready.
+11. If records are ready and the user wants execution, generate a goal prompt instead of starting broad work directly.
+12. Stop before implementation unless the user explicitly approves Execution mode.
 
-The main output should be records, not prose.
+The main output should be records and ledger rows, not prose. If the output is mostly narrative, label it `Discovery brief only` and continue compiling executable records.
 
 ## Goal Prompt Protocol
 
@@ -288,7 +327,7 @@ Use Goal Prompt mode when the blueprint is ready and the user wants target-mode 
 First principle:
 
 ```text
-The goal is to complete the referenced executable blueprint records exactly, with evidence. Do not optimize beyond the records, invent adjacent work, or rewrite unrelated areas.
+The goal is to complete the referenced executable blueprint records and execution ledger rows exactly, with evidence. Do not optimize beyond the records, invent adjacent work, or rewrite unrelated areas.
 ```
 
 Required behavior:
@@ -297,9 +336,10 @@ Required behavior:
 2. Confirm the blueprint records are `ready` or `accepted`.
 3. Run or manually apply blueprint lint.
 4. Generate the goal prompt from records and work slices.
-5. Include the exact stop condition.
-6. Include how progress will be reported against the blueprint.
-7. Do not weaken the prompt with broad language such as "improve as much as possible".
+5. Include the execution ledger file and row ids.
+6. Include the exact stop condition.
+7. Include how progress will be reported against the blueprint and ledger rows.
+8. Do not weaken the prompt with broad language such as "improve as much as possible".
 
 The goal prompt is not a brainstorming prompt. It is a controlled execution brief.
 
@@ -393,11 +433,31 @@ During implementation:
 
 - Read before editing.
 - Keep changes inside the contract.
+- Select the next `planned` or `active` ledger row and work one row at a time.
+- Mark the row `active` before substantive edits when updating project artifacts is in scope.
+- Verify the row against its acceptance standard before moving on.
+- Mark the row `verified` when evidence passes, then `accepted` when the project standard or user acceptance condition is satisfied.
+- If the row cannot be completed, mark it `blocked` or `shelved`, record the reason and resume condition, then continue with the next independent row if one exists.
+- Never mark a row accepted because code was changed; acceptance requires the row's evidence.
 - Prefer small, reviewable edits.
 - Put better new ideas into backlog or drift log.
 - Update tests/golden cases when behavior changes.
 - Record decisions that affect architecture or future agents.
 - Treat migrations, external side effects, access-control changes, deployment changes, production-like writes, and destructive operations as high risk.
+
+## Baseline Authorization
+
+When the user starts Execution mode or a target-mode run from this skill, treat the execution contract as baseline authorization for ordinary in-scope work:
+
+- reading files and project docs
+- editing allowed files/directories
+- creating or updating tests, docs, blueprint files, ledgers, reports, and local evidence artifacts
+- running local lint, tests, type checks, format checks, build checks, browser checks, and read-only inspection commands
+- writing local cache/output files inside allowed project paths
+
+Do not ask for granular permission for every ordinary step inside the contract. Ask only when a required action is high risk, outside scope, destructive, externally visible, credential-sensitive, production-like, or explicitly forbidden by the project.
+
+If a high-risk or permission-blocked action is not essential to the current ledger row, shelve that row with an unblock condition and continue to the next independent row. Stop the whole run only when the blocked action is essential and no independent ledger row remains.
 
 ## Acceptance Standards
 
@@ -484,8 +544,9 @@ Stop and report when:
 - records are missing, contradictory, or too vague
 - required records are not `ready` or `accepted`
 - contract is absent for broad work
+- execution ledger is absent for long-running work
 - required change exceeds allowed scope
-- high-risk action lacks explicit confirmation
+- high-risk action lacks explicit confirmation and cannot be shelved while useful independent rows remain
 - verification cannot be run
 - runtime directory differs from edited directory
 - unrelated worktree changes may be overwritten

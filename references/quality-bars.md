@@ -9,6 +9,7 @@ Use this reference when deciding whether a large AI run is ready to execute, whe
 | summary blueprint | The "blueprint" is a polished paragraph with no ID, forbidden result, or verification. | Reclassify as discovery brief and compile executable records. |
 | missing preview | Technical records describe internals but give the user no checklist, state table, or before/after example to confirm. | Add a user-checkable preview before execution. |
 | aspiration prompt | The agent "improves" forever without a finish line. | Require executable records and acceptance evidence. |
+| missing task ledger | The blueprint is ready, but execution starts from a broad prompt and progress is hard to judge. | Compile `docs/ai-control/91-execution-ledger.md` with row-level goals, paths, acceptance, verification, status, and skip/resume rules. |
 | hidden product standard | The user can see the UI is wrong, but the prompt never encoded why. | Write interface records with states and forbidden UI. |
 | unbounded edit radius | Many unrelated files change. | Use allowed and forbidden files in every execution contract. |
 | context drift | Later runs contradict earlier decisions. | Put durable decisions in records or ADRs, not chat memory. |
@@ -95,11 +96,26 @@ A contract is good when another agent can answer these questions without reading
 
 - What exact outcome should change?
 - Which executable blueprint records authorize the change?
+- Which execution ledger rows will be advanced?
 - Which files are allowed?
 - Which files are forbidden?
 - What data writes are allowed?
 - How will success be proven?
 - When must the agent stop?
+
+## Good Execution Ledger Test
+
+A ledger is good when another agent can execute it row by row without asking for a new plan:
+
+- Each row has a stable ID.
+- Each row cites blueprint record IDs and a work slice.
+- The goal is a concrete outcome, not a theme.
+- The completion path says what to do in order.
+- Scope or files are explicit enough to prevent wandering.
+- Acceptance can pass or fail.
+- Verification names a command, check, screenshot, API check, sample, or manual evidence.
+- Status is one of `planned`, `active`, `blocked`, `shelved`, `skipped`, `verified`, or `accepted`.
+- Blocked/shelved/skipped rows include a reason and resume condition.
 
 ## Signs A Slice Is Too Large
 

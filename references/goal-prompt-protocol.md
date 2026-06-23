@@ -4,10 +4,10 @@ Use this after executable blueprint records are ready and before long-running or
 
 ## First Principle
 
-The goal prompt exists to complete the blueprint, not to reinterpret it.
+The goal prompt exists to complete the blueprint and execution ledger, not to reinterpret them.
 
 ```text
-Complete the referenced executable blueprint records exactly, with evidence. Do not optimize beyond the records, invent adjacent work, or rewrite unrelated areas.
+Complete the referenced executable blueprint records and execution ledger rows exactly, with evidence. Do not optimize beyond the records, invent adjacent work, or rewrite unrelated areas.
 ```
 
 ## Preconditions
@@ -20,6 +20,7 @@ Do not generate a goal prompt unless:
 - records have Preview, Acceptance, and Verification
 - lint passes or manual readiness check is documented
 - work slice is bounded
+- execution ledger rows exist for long-running work
 
 If preconditions fail, return to Blueprint Compiler or Blueprint Audit mode.
 
@@ -38,7 +39,7 @@ Mode: Execution
 
 ## First Principle
 
-Complete the referenced executable blueprint records exactly, with evidence. Do not optimize beyond the records, invent adjacent work, or rewrite unrelated areas.
+Complete the referenced executable blueprint records and execution ledger rows exactly, with evidence. Do not optimize beyond the records, invent adjacent work, or rewrite unrelated areas.
 
 ## Read First
 
@@ -47,6 +48,7 @@ Complete the referenced executable blueprint records exactly, with evidence. Do 
 - docs/ai-control/00-control-index.md
 - relevant module blueprint files
 - relevant work-slices.md
+- docs/ai-control/91-execution-ledger.md
 - current git status
 
 ## Blueprint Records
@@ -58,6 +60,17 @@ Complete the referenced executable blueprint records exactly, with evidence. Do 
 ID:
 Outcome:
 Appetite:
+
+## Execution Ledger
+
+Ledger file:
+Rows:
+- TODO
+
+Row rule:
+- Work one row at a time.
+- Verify before marking a row `verified`.
+- Mark blocked or shelved rows with reason and resume condition, then continue with the next independent row.
 
 ## Allowed Changes
 
@@ -88,11 +101,11 @@ Appetite:
 ## Stop Conditions
 
 Stop when:
-- referenced blueprint records are implemented and verified
+- referenced blueprint records and ledger rows are implemented and verified or explicitly shelved/skipped with reasons
 - a required change exceeds allowed scope
 - blueprint contradiction is found
 - verification cannot run
-- high-risk action needs confirmation
+- high-risk action needs confirmation and cannot be shelved while independent rows remain
 - unrelated worktree changes may be overwritten
 
 ## Unexpected Discoveries
@@ -119,7 +132,8 @@ A goal run should report progress against the blueprint:
 
 ```text
 Record ID:
-Status: not started / in progress / blocked / verified
+Ledger Row:
+Status: planned / active / blocked / shelved / skipped / verified / accepted
 Evidence:
 Remaining gap:
 ```

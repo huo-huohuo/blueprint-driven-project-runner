@@ -82,7 +82,7 @@ def index_doc(modules: list[str], project_root: Path) -> str:
     rows = "\n".join(f"| {m} | | | | planned |" for m in modules)
     return f"""# AI Project Control Index
 
-This project uses blueprint-bound AI execution. Broad implementation must cite executable blueprint records, work slices, allowed scope, forbidden scope, and acceptance evidence.
+This project uses blueprint-bound AI execution. Broad implementation must cite executable blueprint records, execution ledger rows, allowed scope, forbidden scope, and acceptance evidence.
 
 ## Project Root
 
@@ -90,7 +90,7 @@ This project uses blueprint-bound AI execution. Broad implementation must cite e
 
 ## Control Rule
 
-No executable blueprint, no implementation. Summary briefs cannot authorize coding.
+No executable blueprint, no execution ledger, no long-running implementation. Summary briefs cannot authorize coding.
 
 ## Modules
 
@@ -121,7 +121,7 @@ def run_card_doc() -> str:
 
 ## Mode
 
-Intake / Blueprint Compiler / Blueprint Audit / Goal Prompt / Execution / Recovery / Coordination
+Intake / Blueprint Compiler / Blueprint Audit / Ledger Compiler / Goal Prompt / Execution / Recovery / Coordination
 
 ## User Outcome
 
@@ -139,7 +139,7 @@ Short source-aware understanding. This section cannot authorize coding.
 
 ## Next Artifact
 
-Executable blueprint records / work slice / execution contract / evidence report / recovery plan
+Executable blueprint records / work slice / execution ledger / execution contract / evidence report / recovery plan
 """
 
 
@@ -343,9 +343,21 @@ Scoring:
 def ledger_doc() -> str:
     return """# Execution Ledger
 
-| Date | Contract ID | Mode | Blueprint Records | Work Slices | Files Changed | Evidence | Result | Next |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| | | | | | | | | |
+This is the execution queue. Complete one row at a time, verify it, then update the row before moving on.
+
+## Task Queue
+
+| ID | Blueprint Records | Work Slice | Goal | Completion Path | Scope / Files | Acceptance Standard | Verification Method | Evidence | Status | Accepted? | Blocker / Skip Reason | Resume Condition | Updated |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| LEDGER-001 | | | | | | | | | planned | no | | | |
+
+Status values: planned / active / blocked / shelved / skipped / verified / accepted
+
+## Run History
+
+| Date | Contract ID | Ledger Rows | Files Changed | Evidence | Result | Next |
+| --- | --- | --- | --- | --- | --- | --- |
+| | | | | | | |
 """
 
 
