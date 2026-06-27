@@ -38,7 +38,7 @@ Acceptance:
 - Importing the same valid item twice leaves one final business record.
 - Invalid item is reported and does not alter unrelated records.
 Verification:
-- Unit/golden test against local fixture data.
+- Unit/golden test against local fixture data covering one new item, one existing item, one duplicate item, and one invalid item.
 Owner: backend owner
 Status: ready
 Confidence: high
