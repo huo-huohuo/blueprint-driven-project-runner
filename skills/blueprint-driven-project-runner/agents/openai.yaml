@@ -1,0 +1,6 @@
+interface:
+  display_name: "Blueprint-Driven Project Runner"
+  short_description: "Control large AI projects with executable blueprints."
+  default_prompt: "Use $blueprint-driven-project-runner to compile this large project into executable blueprint records, goal prompts, execution contracts, and evidence-based progress."
+policy:
+  allow_implicit_invocation: true

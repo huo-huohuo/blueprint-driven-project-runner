@@ -43,7 +43,42 @@ Use this when:
 
 Do not use it for tiny one-file fixes, quick explanations, or one-off experiments where a normal prompt is enough.
 
-## Quick Start
+## Install Options
+
+This repository now supports two distribution shapes:
+
+- **Codex plugin**: recommended for public sharing and future Codex distribution.
+- **Direct skill install**: simple local install for people who only want the skill folder.
+
+## Install As A Codex Plugin
+
+Use this repository as a plugin root in Codex builds that support plugin installation from a local or GitHub source.
+
+The plugin manifest is:
+
+```text
+.codex-plugin/plugin.json
+```
+
+The plugin skill payload is:
+
+```text
+skills/blueprint-driven-project-runner/
+```
+
+The root `SKILL.md` is kept for direct skill installs. When maintaining the repository, sync the plugin payload after changing the root skill:
+
+```bash
+python scripts/sync_plugin_skill.py
+```
+
+Then validate:
+
+```bash
+python ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+```
+
+## Install As A Direct Codex Skill
 
 Install as a Codex skill:
 
@@ -66,6 +101,21 @@ Use $blueprint-driven-project-runner.
 Create an executable blueprint before implementation.
 Do not start coding until the blueprint has source evidence, forbidden results, preview, acceptance, verification, and execution ledger rows.
 ```
+
+## Relationship To Nearby Skills
+
+This plugin is the control layer for large or risky AI-assisted projects. It should not absorb every planning task.
+
+| Need | Best fit |
+| --- | --- |
+| Large project planning, recovery, execution ledgers, handoff, drift control | `blueprint-driven-project-runner` |
+| Small measurable objective before a short task | `define-goal` |
+| Ambiguous user request that needs clarification before any plan exists | `understand-user-intent` |
+| Lightweight repo guardrails only, without full blueprint/ledger flow | `codex-project-governance-kit` |
+| Code review or regression risk review | `review` |
+| Red-green-refactor implementation | `tdd` |
+
+Rule of thumb: when the project might run across hours, threads, modules, or broad file scopes, use this plugin as the project control system.
 
 ## Add Governance Files To A Project
 
@@ -221,6 +271,12 @@ python -m compileall -q scripts
 ```
 
 For SkillOpt-style iteration, use `references/evaluation-cases.md` as the failure-case suite and accept only revisions that preserve or improve those cases.
+
+Validate the plugin wrapper:
+
+```bash
+python ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+```
 
 ## Shareable One-Liner
 

@@ -1,0 +1,41 @@
+{
+  "name": "blueprint-driven-project-runner",
+  "version": "0.2.0",
+  "description": "Control long-running Codex projects with executable blueprints, execution ledgers, bounded goal prompts, and evidence gates.",
+  "author": {
+    "name": "huo-huohuo",
+    "url": "https://github.com/huo-huohuo"
+  },
+  "homepage": "https://github.com/huo-huohuo/blueprint-driven-project-runner",
+  "repository": "https://github.com/huo-huohuo/blueprint-driven-project-runner",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "codex-skill",
+    "ai-agents",
+    "ai-coding",
+    "prompt-engineering",
+    "spec-driven-development",
+    "project-governance"
+  ],
+  "skills": "./skills",
+  "interface": {
+    "displayName": "Blueprint-Driven Project Runner",
+    "shortDescription": "Stop long-running Codex projects from drifting.",
+    "longDescription": "A Codex plugin and skill for turning vague project goals into executable blueprint records, row-by-row execution ledgers, bounded goal prompts, execution contracts, and evidence-based progress reports.",
+    "developerName": "huo-huohuo",
+    "category": "Productivity",
+    "capabilities": [
+      "Planning",
+      "Write",
+      "Review"
+    ],
+    "websiteURL": "https://github.com/huo-huohuo/blueprint-driven-project-runner",
+    "defaultPrompt": [
+      "Create an executable blueprint before implementation.",
+      "Generate a bounded goal prompt from ready blueprint records.",
+      "Recover control of a drifting long-running Codex project."
+    ],
+    "brandColor": "#2563EB"
+  }
+}
