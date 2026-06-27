@@ -55,6 +55,7 @@ Core rules:
 - Use `python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record "<record-id>"` to create goal-mode prompts.
 - Use `python tools/ai-control/status.py --project .` to inspect project progress.
 - Use `python tools/ai-control/lint_goal_prompt.py --project .` before starting a generated goal prompt.
+- Use `python tools/ai-control/score_blueprint_artifact.py --path <artifact.md>` to score generated blueprints, goal prompts, or execution contracts during optimization.
 - Use `python tools/ai-control/generate_handoff_package.py --project . --module "<module>" --record "<record-id>" --work-slice "<slice-id>"` to start a fresh thread with bounded context.
 - Do not perform high-risk actions without explicit user confirmation: external side effects, production-like writes, deletion, schema or migration changes, access-control changes, deployment changes, background cursor or offset mutation, or bulk automated actions.
 - Ordinary in-scope local reads, local edits, local tests, local evidence files, and control-doc updates are covered by the execution contract; if a high-risk action is blocked, shelve that ledger row and continue with independent rows.
@@ -110,6 +111,7 @@ Run this before broad implementation.
 - Permission-blocked nonessential work has a ledger row status of `blocked` or `shelved` with a resume condition.
 - Goal prompt is generated from ready blueprint records before long-running execution.
 - Goal prompt passes lint before target-mode execution.
+- Generated blueprint, goal, or contract artifacts pass artifact scoring when this is an optimization/review run.
 - Handoff package exists for new long-running module threads.
 
 ## Command
@@ -119,6 +121,7 @@ python tools/ai-control/status.py --project .
 python tools/ai-control/lint_blueprints.py --project .
 python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record "<record-id>"
 python tools/ai-control/lint_goal_prompt.py --project .
+python tools/ai-control/score_blueprint_artifact.py --path "<artifact.md>"
 python tools/ai-control/generate_handoff_package.py --project . --module "<module>" --record "<record-id>" --work-slice "<slice-id>"
 ```
 
@@ -150,6 +153,8 @@ def install(root: Path, modules: list[str], out: str, overwrite: bool, dry_run: 
         results.append((root / "tools" / "ai-control" / "status.py", write_file(root / "tools" / "ai-control" / "status.py", status, overwrite, dry_run)))
         goal_linter = read_skill_file("scripts/lint_goal_prompt.py")
         results.append((root / "tools" / "ai-control" / "lint_goal_prompt.py", write_file(root / "tools" / "ai-control" / "lint_goal_prompt.py", goal_linter, overwrite, dry_run)))
+        scorer = read_skill_file("scripts/score_blueprint_artifact.py")
+        results.append((root / "tools" / "ai-control" / "score_blueprint_artifact.py", write_file(root / "tools" / "ai-control" / "score_blueprint_artifact.py", scorer, overwrite, dry_run)))
         handoff = read_skill_file("scripts/generate_handoff_package.py")
         results.append((root / "tools" / "ai-control" / "generate_handoff_package.py", write_file(root / "tools" / "ai-control" / "generate_handoff_package.py", handoff, overwrite, dry_run)))
 

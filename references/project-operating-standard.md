@@ -41,6 +41,7 @@ docs/ai-control/92-drift-log.md
 tools/ai-control/lint_blueprints.py
 tools/ai-control/generate_goal_prompt.py
 tools/ai-control/lint_goal_prompt.py
+tools/ai-control/score_blueprint_artifact.py
 tools/ai-control/generate_handoff_package.py
 tools/ai-control/status.py
 ```
@@ -184,6 +185,12 @@ Before starting from a generated prompt, lint it:
 python tools/ai-control/lint_goal_prompt.py --project .
 ```
 
+When reviewing or optimizing generated artifacts, score them before trusting them:
+
+```bash
+python tools/ai-control/score_blueprint_artifact.py --path "<artifact.md>"
+```
+
 ## Status And Handoff
 
 Use status before starting or resuming long-running work:
@@ -285,6 +292,7 @@ Before broad implementation:
 python tools/ai-control/lint_blueprints.py --project .
 python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record "<record-id>"
 python tools/ai-control/lint_goal_prompt.py --project .
+python tools/ai-control/score_blueprint_artifact.py --path "<artifact.md>"
 python tools/ai-control/status.py --project .
 ```
 

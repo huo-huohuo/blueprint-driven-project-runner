@@ -103,6 +103,31 @@ A record is not ready for execution unless all are true:
 
 If any item fails, keep the record as `draft` or `needs-decision` and do not enter Execution mode.
 
+## Blueprint Grounding Preflight
+
+Before compiling the first executable records, run a compact anti-vagueness preflight. Use it especially when the request contains broad words such as optimize, improve, mature, professional, complete, convenient, smart, or robust.
+
+The preflight must answer:
+
+```text
+Source evidence:
+Current state checked or NOT_CHECKED:
+Observable target behavior:
+Forbidden outcomes:
+User-checkable preview:
+Pass/fail acceptance:
+Verification method:
+DECISION_NEEDED items:
+Execution allowed: yes / no
+```
+
+Rules:
+
+- If source evidence, observable target behavior, forbidden outcomes, preview, acceptance, or verification are missing, the output is not an executable blueprint yet.
+- If `Execution allowed` is `no`, label the result `Discovery brief only` or keep records in `draft` / `needs-decision`.
+- Do not hide uncertainty inside polished prose. Put unknowns in `DECISION_NEEDED`.
+- Do not make the preflight a substitute for records; use it to decide whether records can become `ready`.
+
 ## What Does Not Count
 
 Reject these as blueprint substitutes:
@@ -306,17 +331,18 @@ Report gaps honestly. Do not claim maturity from activity or file count.
 When asked to "make a blueprint":
 
 1. Read source facts.
-2. If the area is technical or backend-heavy, ask or fill the technical questionnaire before writing technical contracts.
-3. Output a short discovery brief only if useful.
-4. Compile atomic executable records.
-5. Add a preview for each record: visual preview for UI, checklist/state/sample preview for technical work.
-6. Mark missing fields as `DECISION_NEEDED`.
-7. Add records to the relevant blueprint files if the user asked for project artifacts.
-8. Create work slices from ready or near-ready records.
-9. Create or update the execution task ledger with row-level goals, completion paths, acceptance standards, verification, status, and skip/resume rules.
-10. Produce a decision queue for records that are not ready.
-11. If records are ready and the user wants execution, generate a goal prompt instead of starting broad work directly.
-12. Stop before implementation unless the user explicitly approves Execution mode.
+2. Run the Blueprint Grounding Preflight before producing ready records.
+3. If the area is technical or backend-heavy, ask or fill the technical questionnaire before writing technical contracts.
+4. Output a short discovery brief only if useful.
+5. Compile atomic executable records.
+6. Add a preview for each record: visual preview for UI, checklist/state/sample preview for technical work.
+7. Mark missing fields as `DECISION_NEEDED`.
+8. Add records to the relevant blueprint files if the user asked for project artifacts.
+9. Create work slices from ready or near-ready records.
+10. Create or update the execution task ledger with row-level goals, completion paths, acceptance standards, verification, status, and skip/resume rules.
+11. Produce a decision queue for records that are not ready.
+12. If records are ready and the user wants execution, generate a goal prompt instead of starting broad work directly.
+13. Stop before implementation unless the user explicitly approves Execution mode.
 
 The main output should be records and ledger rows, not prose. If the output is mostly narrative, label it `Discovery brief only` and continue compiling executable records.
 
@@ -402,7 +428,7 @@ When the user asks to apply this system to a project:
 3. Create missing `docs/ai-control/` artifacts.
 4. Copy the linter into project-local tools unless the project already has an equivalent.
 5. Copy the goal prompt generator into project-local tools unless the project already has an equivalent.
-6. Copy status, goal-prompt lint, and handoff tools unless the project already has equivalents.
+6. Copy status, goal-prompt lint, artifact scoring, and handoff tools unless the project already has equivalents.
 7. Do not modify product code.
 8. Report installed files, skipped existing files, and the first command the user should run.
 
@@ -537,6 +563,18 @@ Use Recovery mode when work feels circular, progress is invisible, or the user r
 
 Do not use destructive reset commands unless the user explicitly asks.
 
+## Skill Optimization Protocol
+
+Use this only when the user asks to improve this skill, audit it, or apply SkillOpt-style iteration.
+
+1. Convert the reported failure into an evaluation case before changing broad instructions.
+2. Read `references/evaluation-cases.md`.
+3. Make the smallest patch that improves the failing case without weakening existing cases.
+4. Prefer scripts or lint checks for repeated judgment instead of more prose.
+5. Run `quick_validate.py` and Python syntax checks for changed scripts.
+6. Forward-test with generated artifacts when practical, using `scripts/score_blueprint_artifact.py`.
+7. Do not broaden the skill trigger or turn it into a general coding assistant.
+
 ## Stop Conditions
 
 Stop and report when:
@@ -558,6 +596,7 @@ Stop and report when:
 - Read `references/templates.md` when creating or updating control artifacts.
 - Read `references/technical-blueprint-questionnaire.md` when compiling backend, data, integration, automation, infrastructure, or other technical blueprints.
 - Read `references/quality-bars.md` when auditing readiness or recovering from drift.
+- Read `references/evaluation-cases.md` when optimizing or forward-testing this skill.
 - Read `references/blueprint-examples.md` when the user reports vague blueprints or asks for examples.
 - Read `references/goal-prompt-protocol.md` when generating target/goal prompts after blueprints are ready.
 - Use `scripts/install_governance_system.py` to install the full project-level governance system.
@@ -565,5 +604,6 @@ Stop and report when:
 - Use `scripts/lint_blueprints.py` before execution or when blueprints seem summary-like.
 - Use `scripts/generate_goal_prompt.py` to generate a goal-mode prompt from ready blueprint records.
 - Use `scripts/lint_goal_prompt.py` before starting goal-mode execution.
+- Use `scripts/score_blueprint_artifact.py` when scoring generated blueprint, goal, or contract artifacts during optimization.
 - Use `scripts/status.py` to summarize project progress and blockers.
 - Use `scripts/generate_handoff_package.py` to create fresh-thread handoff packages.

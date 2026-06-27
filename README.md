@@ -10,6 +10,8 @@ This is for projects where ordinary long-running AI goals become vague, repetiti
 - Execution ledgers that break blueprint completion into rows with goals, completion paths, acceptance standards, verification methods, status, blockers, and resume conditions.
 - Goal prompt generation that binds execution to specific blueprint record IDs and ledger row IDs.
 - Goal prompt linting to catch broad or unsafe instructions such as "continue optimizing" or "fix anything you notice".
+- Artifact scoring for generated blueprints, goal prompts, and execution contracts.
+- Evaluation cases for SkillOpt-style iteration on recurring failure modes.
 - Project status reporting across blueprints, work slices, execution ledger rows, blockers, and generated prompts.
 - Thread handoff packages so a fresh Codex thread can continue work without relying on hidden chat history.
 - A project governance installer that adds `docs/ai-control` and `tools/ai-control` to a target repository.
@@ -23,6 +25,7 @@ This is for projects where ordinary long-running AI goals become vague, repetiti
 |   `-- openai.yaml
 |-- references/
 |   |-- blueprint-examples.md
+|   |-- evaluation-cases.md
 |   |-- goal-prompt-protocol.md
 |   |-- project-operating-standard.md
 |   |-- quality-bars.md
@@ -35,6 +38,7 @@ This is for projects where ordinary long-running AI goals become vague, repetiti
 |   |-- lint_blueprints.py
 |   |-- lint_goal_prompt.py
 |   |-- scaffold_control_pack.py
+|   |-- score_blueprint_artifact.py
 |   `-- status.py
 `-- examples/
 ```
@@ -100,6 +104,12 @@ Lint generated goal prompts:
 python tools/ai-control/lint_goal_prompt.py --project .
 ```
 
+Score a generated blueprint, goal prompt, or execution contract:
+
+```bash
+python tools/ai-control/score_blueprint_artifact.py --path docs/ai-control/example-artifact.md
+```
+
 Show project status:
 
 ```bash
@@ -137,6 +147,8 @@ Compile bundled scripts:
 ```bash
 python -m py_compile scripts/*.py
 ```
+
+For SkillOpt-style iteration, use `references/evaluation-cases.md` as the failure-case suite and accept only revisions that preserve or improve those cases.
 
 ## Design Principle
 

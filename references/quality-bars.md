@@ -6,6 +6,7 @@ Use this reference when deciding whether a large AI run is ready to execute, whe
 
 | Failure | Symptom | Countermeasure |
 | --- | --- | --- |
+| ungrounded start | The blueprint begins with confident conclusions before source evidence, current state, forbidden outcomes, preview, and verification are named. | Run the Blueprint Grounding Preflight and block `ready` status until each missing item is explicit. |
 | summary blueprint | The "blueprint" is a polished paragraph with no ID, forbidden result, or verification. | Reclassify as discovery brief and compile executable records. |
 | missing preview | Technical records describe internals but give the user no checklist, state table, or before/after example to confirm. | Add a user-checkable preview before execution. |
 | aspiration prompt | The agent "improves" forever without a finish line. | Require executable records and acceptance evidence. |
@@ -33,6 +34,24 @@ A record can authorize execution only when all are true:
 - `Verification` names a concrete method.
 - `Status` is `ready` or `accepted`.
 - `DECISION_NEEDED` appears only when the record is not ready.
+
+## Blueprint Grounding Preflight Quality Bar
+
+Before the first ready records, the artifact should show or internally satisfy this check:
+
+| Check | Ready requirement |
+| --- | --- |
+| Source evidence | Names user instruction, project doc, code evidence, screenshot, issue, or explicit inference. |
+| Current state | Cites checked behavior or says `NOT_CHECKED`. |
+| Observable target | Uses nouns, verbs, states, inputs, outputs, or workflows instead of adjectives alone. |
+| Forbidden outcomes | Names at least one wrong future direction. |
+| User-checkable preview | Gives a screenshot/wire/state list/checklist/example/failure matrix a non-specialist can inspect. |
+| Pass/fail acceptance | Defines a result that can pass or fail. |
+| Verification method | Names test, screenshot, browser flow, API check, log check, manual check, or `DECISION_NEEDED`. |
+| Decision path | Unknowns are in `DECISION_NEEDED`; records with unknowns stay `draft` or `needs-decision`. |
+| Execution allowed | Says `no` unless required gates are satisfied. |
+
+If three or more checks are missing, the artifact should be treated as discovery only even if it is well written.
 
 ## Vague Word Smells
 
@@ -147,3 +166,16 @@ A publishable project-control skill should be:
 - source-aware instead of chat-memory-dependent
 - enforceable through templates and linting
 - light enough that agents will actually follow it
+
+## Optimization Bar
+
+Do not accept a skill revision because it sounds more comprehensive. Accept it only when it preserves or improves the evaluation cases in `references/evaluation-cases.md`.
+
+A good revision should:
+
+- fix a named failure mode
+- add or improve a testable check when the same judgment recurs
+- preserve narrow triggering
+- preserve ledger-based execution
+- preserve baseline authorization without weakening high-risk safeguards
+- validate with `quick_validate.py`, syntax checks, and artifact scoring where practical
