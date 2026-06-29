@@ -1,6 +1,6 @@
 {
   "name": "blueprint-driven-project-runner",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Control long-running Codex projects with executable blueprints, execution ledgers, bounded goal prompts, and evidence gates.",
   "author": {
     "name": "huo-huohuo",
@@ -14,9 +14,15 @@
     "codex-skill",
     "ai-agents",
     "ai-coding",
+    "ai-coding-agents",
+    "agentic-workflows",
     "prompt-engineering",
     "spec-driven-development",
-    "project-governance"
+    "software-governance",
+    "project-governance",
+    "project-management",
+    "execution-ledger",
+    "goal-prompt"
   ],
   "skills": "./skills",
   "interface": {

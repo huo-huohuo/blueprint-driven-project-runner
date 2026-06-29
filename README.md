@@ -1,10 +1,37 @@
 # Blueprint-Driven Project Runner for Codex
 
-Stop long-running AI coding agents from wandering.
+[![GitHub stars](https://img.shields.io/github/stars/huo-huohuo/blueprint-driven-project-runner?style=social)](https://github.com/huo-huohuo/blueprint-driven-project-runner/stargazers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-This Codex skill turns vague project goals into executable blueprint records, row-by-row execution ledgers, bounded goal prompts, and evidence-based progress reports.
+Stop AI coding agents from running for days without accepted progress.
 
-It is for the moment when "make this better" starts producing big diffs, circular rewrites, hidden regressions, and no clear finish line.
+Blueprint-Driven Project Runner is a Codex plugin and skill that refuses to start long-running implementation until the work has executable blueprint records, a row-by-row execution ledger, a scoped goal prompt, and evidence-based stop conditions.
+
+It is for the moment when:
+
+- "make this better" becomes a giant diff with no obvious improvement
+- "continue optimizing" loops for hours or days
+- the agent changes many files but cannot say which accepted requirement moved forward
+- the chat thread becomes the only memory and then gets too large to trust
+
+The core rule is simple:
+
+```text
+No executable blueprint, no execution ledger, no long-running implementation.
+```
+
+## How It Stops Drift
+
+```mermaid
+flowchart LR
+    A["Vague goal\nOptimize the CRM"] --> B["Grounding preflight\nsources, current state, forbidden outcomes"]
+    B --> C["Executable blueprint records\npreview, acceptance, verification"]
+    C --> D["Execution ledger\none row per task"]
+    D --> E["Target-mode startup gate\nPASS or FAIL"]
+    E -->|PASS| F["Execute one ledger row"]
+    E -->|FAIL| G["Return to blueprint, ledger, goal prompt, status, or recovery"]
+    F --> H["Evidence report\nverified / accepted / blocked / shelved"]
+```
 
 ## The Problem
 
@@ -19,6 +46,24 @@ Typical failure pattern:
 | "Keep going until it is mature." | Execute ledger rows one at a time, with evidence and stop conditions. |
 | Progress is measured by activity. | Progress is measured by accepted blueprint records. |
 | The thread becomes the memory. | Project files become the memory. |
+
+## A Failure This Prevents
+
+A CRM improvement run can sound clear at the prompt level:
+
+```text
+Keep optimizing the CRM interface until it is complete.
+```
+
+But after two days, the agent may still be changing code because "complete" was never converted into a judging system. This plugin forces the run to answer first:
+
+- Which blueprint record IDs are being completed?
+- Which ledger row is active now?
+- What files are allowed and forbidden?
+- What evidence proves this row is accepted?
+- When should the run stop instead of continuing?
+
+If those answers do not exist, the target-mode startup gate fails and implementation does not begin.
 
 ## What This Gives You
 
@@ -295,6 +340,10 @@ python ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
 ## Shareable One-Liner
 
 Blueprint-Driven Project Runner is a Codex skill that stops long-running AI coding agents from drifting by forcing executable blueprints, execution ledgers, bounded goal prompts, and evidence gates before broad implementation.
+
+## Share The Project
+
+Use [`docs/share-kit.md`](docs/share-kit.md) for ready-to-post descriptions, suggested GitHub topics, and audience notes.
 
 ## Design Principle
 
