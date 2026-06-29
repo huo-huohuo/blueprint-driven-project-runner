@@ -37,6 +37,8 @@ A paragraph summary is not a blueprint. A plan is not a blueprint. A PRD-style d
 
 For long-running work, ready records must be decomposed into ledger rows before Execution mode. A ledger row is the unit Codex completes, verifies, marks accepted, blocks, shelves, or skips.
 
+For target-mode or goal-mode runs, use a hard startup gate: no ready blueprint records, no work slice, no ledger rows, no scoped goal prompt, no execution. If the gate fails, switch to Blueprint Compiler, Ledger Compiler, Goal Prompt, Status, or Recovery mode instead of implementing.
+
 Emergency bug fixes are allowed, but keep them narrow and record the blueprint gap that allowed the bug.
 
 ## Discovery Brief vs Executable Blueprint
@@ -166,6 +168,7 @@ Start each substantial response by choosing one mode and one sentence of rationa
 - **Blueprint Audit mode**: lint existing blueprints for readiness and vagueness. Do not change product code.
 - **Ledger Compiler mode**: decompose ready or near-ready records into an execution task ledger. Do not change product code.
 - **Goal Prompt mode**: generate a target/goal prompt from ready blueprint records and work slices. Do not change product code.
+- **Target Startup Gate mode**: decide whether a target-mode or long-running run is allowed to start. Cite the required artifacts and output pass/fail. Do not change product code.
 - **Status mode**: summarize project progress, blockers, ready records, goal prompts, and executing slices. Do not change product code.
 - **Handoff mode**: generate a fresh-thread handoff package from ready records. Do not change product code.
 - **Execution mode**: implement one or a few ready records under an execution contract.
@@ -175,6 +178,54 @@ Start each substantial response by choosing one mode and one sentence of rationa
 ## Gates
 
 Use gates to prevent long-run drift.
+
+### Target Mode Startup Gate
+
+Use this gate whenever the user asks to start, continue, resume, or set a target/goal-mode run; whenever a task may run for hours; or whenever a previous run stalled, looped, or changed many files without visible accepted progress.
+
+Start in Target Startup Gate mode and output:
+
+```text
+Target Mode Startup Gate: PASS / FAIL
+Project root:
+Module:
+Required artifacts:
+- Project operating standard:
+- Ready blueprint records:
+- Work slice:
+- Execution ledger:
+- Ledger rows:
+- Goal prompt:
+- Goal prompt lint:
+- Execution contract:
+- Allowed scope:
+- Forbidden scope:
+- Verification/evidence plan:
+Next allowed mode:
+Reason:
+```
+
+Pass only if all are true:
+
+- The project root and module are known.
+- Project operating standard or equivalent repo rules have been read.
+- Referenced blueprint records exist and are `ready` or `accepted`.
+- The work slice is bounded and cites the record IDs.
+- The execution ledger exists and contains the row IDs to advance.
+- The goal prompt cites the record IDs, work slice, ledger file, and ledger row IDs.
+- Goal prompt lint passes, or the manual lint result is documented.
+- The execution contract states objective, allowed files, forbidden files, data policy, verification, evidence, and stop condition.
+- The next action is tied to one or more ledger rows.
+
+If any item is missing, output `FAIL`, do not implement, and move to the smallest corrective mode:
+
+- Missing or vague records -> Blueprint Compiler or Blueprint Audit.
+- Missing ledger rows -> Ledger Compiler.
+- Missing or broad goal prompt -> Goal Prompt.
+- Previous run changed too much or stalled -> Recovery.
+- Old half-built project without usable control artifacts -> Retrofit mode: inspect current code and docs, compile a minimal blueprint for remaining work, create ledger rows, then generate a new goal prompt.
+
+Never start target-mode execution from phrases such as "continue optimizing", "make it mature", "finish the CRM", or "run until complete" unless they are converted into ready records and ledger rows first.
 
 ### 0. Installation Gate
 
@@ -291,7 +342,7 @@ python scripts/generate_goal_prompt.py --project <project-root> --module "<modul
 If the project has a local copy, prefer:
 
 ```bash
-python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record <RECORD-ID>
+python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record <RECORD-ID> --work-slice <WORK-SLICE-ID> --ledger-row <LEDGER-ROW-ID>
 ```
 
 ### 6. Contract Gate
@@ -361,11 +412,13 @@ Required behavior:
 1. Read the project operating standard.
 2. Confirm the blueprint records are `ready` or `accepted`.
 3. Run or manually apply blueprint lint.
-4. Generate the goal prompt from records and work slices.
-5. Include the execution ledger file and row ids.
-6. Include the exact stop condition.
-7. Include how progress will be reported against the blueprint and ledger rows.
-8. Do not weaken the prompt with broad language such as "improve as much as possible".
+4. Confirm a bounded work slice and execution ledger rows exist.
+5. Generate the goal prompt from records, work slices, and ledger rows.
+6. Include a Target Mode Startup Gate section in the prompt.
+7. Include the execution ledger file and row ids.
+8. Include the exact stop condition.
+9. Include how progress will be reported against the blueprint and ledger rows.
+10. Do not weaken the prompt with broad language such as "improve as much as possible".
 
 The goal prompt is not a brainstorming prompt. It is a controlled execution brief.
 
@@ -457,6 +510,8 @@ Split the slice if it mixes unrelated UI/backend decisions, needs multiple owner
 
 During implementation:
 
+- Start with the Target Mode Startup Gate for any target-mode, long-running, resume, or "continue" request.
+- If the startup gate fails, do not edit product code; switch to the smallest corrective mode.
 - Read before editing.
 - Keep changes inside the contract.
 - Select the next `planned` or `active` ledger row and work one row at a time.

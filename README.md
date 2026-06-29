@@ -25,6 +25,7 @@ Typical failure pattern:
 - Executable blueprint records with source evidence, target behavior, forbidden results, preview, acceptance, and verification.
 - A grounding preflight that blocks polished-but-vague blueprints before implementation starts.
 - Execution ledgers that turn broad work into row-level goals, paths, acceptance standards, verification methods, status, blockers, and resume conditions.
+- A target-mode startup gate that fails closed when ready blueprints, work slices, ledger rows, scoped goal prompts, or execution contracts are missing.
 - Goal prompts that bind Codex to specific blueprint record IDs and ledger row IDs.
 - Linting and artifact scoring for generated blueprints, goal prompts, and execution contracts.
 - Handoff packages so a fresh Codex thread can continue without inheriting a giant chat history.
@@ -178,6 +179,19 @@ intent
 ```
 
 No executable blueprint, no execution ledger, no long-running implementation.
+
+Target-mode runs must pass the startup gate before implementation:
+
+```text
+ready blueprint records
+-> bounded work slice
+-> execution ledger rows
+-> scoped goal prompt
+-> execution contract
+-> one ledger row at a time
+```
+
+If any part is missing, return to blueprint, ledger, goal-prompt, status, or recovery mode instead of coding.
 
 ## Minimal Workflow
 

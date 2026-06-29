@@ -45,6 +45,7 @@ LEDGER_HEADERS = [
 ]
 
 GOAL_SECTIONS = [
+    "Target Mode Startup Gate",
     "First Principle",
     "Read First",
     "Blueprint Records",
@@ -154,6 +155,11 @@ def goal_checks(text: str) -> list[Check]:
     checks: list[Check] = []
     missing_sections = [section for section in GOAL_SECTIONS if section.lower() not in text.lower()]
     checks.append(Check("goal-sections", not missing_sections, f"missing sections: {', '.join(missing_sections) or 'none'}"))
+    startup_gate = re.search(r"##\s+Target Mode Startup Gate(.+?)(?:\n##\s+|\Z)", text, re.DOTALL | re.IGNORECASE)
+    startup_text = startup_gate.group(1).lower() if startup_gate else ""
+    startup_terms = ["pass", "blueprint", "work slice", "execution ledger", "goal prompt", "execution contract"]
+    missing_startup_terms = [term for term in startup_terms if term not in startup_text]
+    checks.append(Check("target-startup-gate", not missing_startup_terms, f"missing startup gate terms: {', '.join(missing_startup_terms) or 'none'}"))
     first_principle = re.search(r"##\s+First Principle(.+?)(?:\n##\s+|\Z)", text, re.DOTALL | re.IGNORECASE)
     first_text = first_principle.group(1) if first_principle else ""
     checks.append(Check("first-principle-binds-ledger", "blueprint" in first_text.lower() and "ledger" in first_text.lower(), "first principle binds blueprint records and ledger rows"))

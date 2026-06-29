@@ -335,9 +335,23 @@ Project root:
 Module:
 Mode: Execution
 
+## Target Mode Startup Gate
+
+Gate result: PASS / FAIL
+
+Required before implementation:
+- project operating standard or equivalent repo rules have been read
+- referenced blueprint records are ready or accepted
+- work slice is bounded
+- execution ledger file and row IDs are present
+- this goal prompt passes lint or manual lint is documented
+- execution contract states allowed scope, forbidden scope, data policy, verification, evidence, and stop condition
+
+If FAIL, do not edit product code. Switch to Blueprint Compiler, Blueprint Audit, Ledger Compiler, Goal Prompt, Status, or Recovery mode.
+
 ## First Principle
 
-Complete the referenced executable blueprint records exactly, with evidence. Do not optimize beyond the records, invent adjacent work, or rewrite unrelated areas.
+Complete the referenced executable blueprint records and execution ledger rows exactly, with evidence. Do not optimize beyond the records, invent adjacent work, or rewrite unrelated areas.
 
 ## Read First
 

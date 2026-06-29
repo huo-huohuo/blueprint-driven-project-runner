@@ -51,8 +51,9 @@ Core rules:
 - Broad work requires ready executable blueprint records, execution ledger rows, and an execution contract.
 - Technical/backend records require user-checkable previews such as checklists, before/after examples, state tables, boundaries, failure matrices, and evidence plans.
 - Before long-running execution, compile `docs/ai-control/91-execution-ledger.md`, then generate a goal prompt from ready blueprint records; blueprint and ledger completion are the first principle.
+- Target-mode and goal-mode runs must start with `Target Mode Startup Gate: PASS / FAIL`. If ready records, bounded work slice, ledger rows, scoped goal prompt, or execution contract are missing, do not edit product code.
 - Run `python tools/ai-control/lint_blueprints.py --project .` before Execution mode when blueprint files exist.
-- Use `python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record "<record-id>"` to create goal-mode prompts.
+- Use `python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record "<record-id>" --work-slice "<slice-id>" --ledger-row "<ledger-row-id>"` to create goal-mode prompts.
 - Use `python tools/ai-control/status.py --project .` to inspect project progress.
 - Use `python tools/ai-control/lint_goal_prompt.py --project .` before starting a generated goal prompt.
 - Use `python tools/ai-control/score_blueprint_artifact.py --path <artifact.md>` to score generated blueprints, goal prompts, or execution contracts during optimization.
@@ -103,6 +104,7 @@ Run this before broad implementation.
 - Relevant module blueprints read.
 - Blueprint records are `ready` or `accepted`.
 - Execution ledger rows exist for long-running work.
+- Target Mode Startup Gate has PASS result before product-code edits.
 - Execution contract exists.
 - Allowed files and forbidden files are explicit.
 - Data-write policy is explicit.
@@ -119,7 +121,7 @@ Run this before broad implementation.
 ```bash
 python tools/ai-control/status.py --project .
 python tools/ai-control/lint_blueprints.py --project .
-python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record "<record-id>"
+python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record "<record-id>" --work-slice "<slice-id>" --ledger-row "<ledger-row-id>"
 python tools/ai-control/lint_goal_prompt.py --project .
 python tools/ai-control/score_blueprint_artifact.py --path "<artifact.md>"
 python tools/ai-control/generate_handoff_package.py --project . --module "<module>" --record "<record-id>" --work-slice "<slice-id>"

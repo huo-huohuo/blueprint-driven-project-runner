@@ -26,6 +26,8 @@ Technical areas require user-checkable previews. For backend, data, integration,
 
 After blueprints are ready, decompose them into the execution ledger, then generate a goal prompt before long-running execution. The goal prompt must make blueprint and ledger completion the first principle.
 
+Target-mode and goal-mode runs fail closed. If ready blueprint records, a bounded work slice, execution ledger rows, a scoped goal prompt, or an execution contract are missing, the agent must not implement product code. It must return to Blueprint Compiler, Blueprint Audit, Ledger Compiler, Goal Prompt, Status, or Recovery mode.
+
 ## Required Project Files
 
 Minimum files:
@@ -156,6 +158,7 @@ A long-running or target-mode execution must start from a goal prompt derived fr
 Required goal prompt sections:
 
 - project root and module
+- target mode startup gate
 - first principle: complete referenced blueprints exactly, with evidence
 - governing docs to read first
 - blueprint record IDs
@@ -176,8 +179,12 @@ Forbidden goal prompt language:
 - fix anything you notice
 - make the whole module mature
 - refactor as needed
+- finish the CRM
+- run until complete
 
 If the prompt cannot cite ready blueprint records, return to Blueprint Compiler or Blueprint Audit mode.
+
+Before editing product code from a goal prompt, output `Target Mode Startup Gate: PASS / FAIL`. PASS requires ready blueprint records, work slice, ledger row IDs, allowed scope, forbidden scope, verification plan, evidence requirements, and stop conditions. On FAIL, do not implement; repair the missing control artifact first.
 
 Before starting from a generated prompt, lint it:
 
@@ -290,7 +297,7 @@ Before broad implementation:
 
 ```bash
 python tools/ai-control/lint_blueprints.py --project .
-python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record "<record-id>"
+python tools/ai-control/generate_goal_prompt.py --project . --module "<module>" --record "<record-id>" --work-slice "<slice-id>" --ledger-row "<ledger-row-id>"
 python tools/ai-control/lint_goal_prompt.py --project .
 python tools/ai-control/score_blueprint_artifact.py --path "<artifact.md>"
 python tools/ai-control/status.py --project .

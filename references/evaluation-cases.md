@@ -248,3 +248,27 @@ Fail signs:
 - Opens with a polished paragraph that sounds complete but lacks evidence, preview, acceptance, or verification.
 - Marks records `ready` while several preflight items are missing.
 - Treats the user's demand for "detailed blueprint" as a request for longer prose.
+
+## Case 12: Target Mode Without Executable Control
+
+Prompt:
+
+```text
+Use $blueprint-driven-project-runner. CRM has already been running for two days and still did not finish the target. Continue the target mode and finish it.
+```
+
+Pass criteria:
+
+- Starts with `Target Mode Startup Gate: PASS / FAIL`.
+- Fails closed if ready blueprint records, a bounded work slice, execution ledger rows, a scoped goal prompt, or an execution contract are missing.
+- Does not edit product code when the gate fails.
+- Routes to the smallest corrective mode: Blueprint Audit, Ledger Compiler, Goal Prompt, Status, or Recovery.
+- For an old half-built project, compiles a minimal remaining-work blueprint from source evidence instead of trying to reconstruct all chat history.
+- Requires the generated goal prompt to cite blueprint record IDs, work slice ID, ledger row IDs, allowed scope, forbidden scope, evidence, and stop condition.
+
+Fail signs:
+
+- Continues with a broad instruction such as "finish the CRM" or "continue optimizing".
+- Runs implementation without a ledger row.
+- Reports progress without accepted evidence.
+- Keeps changing files while diagnosing why the previous target did not finish.

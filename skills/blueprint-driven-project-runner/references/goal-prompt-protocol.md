@@ -24,6 +24,8 @@ Do not generate a goal prompt unless:
 
 If preconditions fail, return to Blueprint Compiler or Blueprint Audit mode.
 
+For target-mode or long-running work, the generator must fail closed. Do not produce a nearly ready goal prompt with placeholder work slices, `TODO` ledger rows, or `DECISION_NEEDED` sections. Create or repair the missing artifacts first.
+
 ## Required Goal Prompt Sections
 
 ```markdown
@@ -36,6 +38,20 @@ Use $blueprint-driven-project-runner.
 Project root:
 Module:
 Mode: Execution
+
+## Target Mode Startup Gate
+
+Gate result: must be PASS before implementation.
+
+PASS only if:
+- project operating standard or equivalent repo rules have been read
+- referenced blueprint records are ready or accepted
+- work slice is bounded
+- execution ledger file and row IDs are present
+- this goal prompt passes lint or manual lint is documented
+- execution contract states allowed scope, forbidden scope, data policy, verification, evidence, and stop condition
+
+If the gate is FAIL, do not edit product code. Switch to Blueprint Compiler, Blueprint Audit, Ledger Compiler, Goal Prompt, Status, or Recovery mode.
 
 ## First Principle
 
@@ -123,6 +139,8 @@ Do not write goal prompts that say:
 - make the whole module production-ready
 - refactor as needed
 - use your judgment to complete adjacent issues
+- finish the CRM
+- run until complete
 
 Replace those phrases with record IDs, allowed files, forbidden files, and evidence.
 

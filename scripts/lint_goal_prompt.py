@@ -19,7 +19,9 @@ FIELD_RE = re.compile(
     r"^(ID|Type|Source|Current Evidence|Target Behavior|Forbidden Result|Preview|Acceptance|Verification|Owner|Status|Confidence|Open Questions):\s*(.*)$"
 )
 RECORD_ID_RE = re.compile(r"\b[A-Z][A-Z0-9]*(?:[-_][A-Z0-9]+)+-\d{3,}\b")
+LEDGER_ROW_RE = re.compile(r"\bLEDGER[A-Z0-9_-]*-\d{3,}\b|\bLEDGER-[A-Z0-9_-]+\b", re.IGNORECASE)
 REQUIRED_SECTIONS = [
+    "Target Mode Startup Gate",
     "First Principle",
     "Read First",
     "Blueprint Records",
@@ -36,16 +38,22 @@ REQUIRED_SECTIONS = [
 BAD_PHRASES = [
     "improve generally",
     "continue optimizing",
+    "continue optimizing until mature",
     "fix anything you notice",
     "make the whole module mature",
+    "make the whole module production-ready",
     "refactor as needed",
     "optimize as much as possible",
     "use your judgment to complete adjacent issues",
+    "finish the CRM",
+    "run until complete",
     "继续优化",
     "全面完善",
     "顺手修",
     "尽量做好",
     "自由发挥",
+    "跑到完成",
+    "把CRM做完",
 ]
 READY_STATUSES = {"ready", "accepted"}
 
@@ -106,8 +114,10 @@ def parse_records(path: Path) -> dict[str, dict[str, list[str]]]:
 
 def goal_prompt_files(project: Path) -> list[Path]:
     ai_control = project / "docs" / "ai-control"
-    files = list(ai_control.rglob("goal-prompts/*.md")) if ai_control.exists() else []
-    files.extend(path for path in ai_control.rglob("*goal*.md") if ai_control.exists() and "goal-prompts" not in str(path))
+    if not ai_control.exists():
+        return []
+    files = list(ai_control.rglob("goal-prompts/*.md"))
+    files.extend(path for path in ai_control.rglob("*goal*.md") if "goal-prompts" not in str(path))
     return sorted(set(files))
 
 
@@ -128,6 +138,8 @@ def lint_file(path: Path, project: Path | None) -> list[Issue]:
 
     if "DECISION_NEEDED" in text:
         issues.append(Issue("ERROR", path, "contains DECISION_NEEDED"))
+    if re.search(r"\bTODO\b", text, re.IGNORECASE):
+        issues.append(Issue("ERROR", path, "contains TODO placeholder"))
 
     lower = text.lower()
     for phrase in BAD_PHRASES:
@@ -138,6 +150,17 @@ def lint_file(path: Path, project: Path | None) -> list[Issue]:
     record_ids = sorted(set(RECORD_ID_RE.findall(blueprint_section)))
     if not record_ids:
         issues.append(Issue("ERROR", path, "no blueprint record IDs found"))
+
+    startup_gate = sections.get("Target Mode Startup Gate", "")
+    gate_lower = startup_gate.lower()
+    for required in ["pass", "blueprint", "work slice", "execution ledger", "goal prompt", "execution contract"]:
+        if required not in gate_lower:
+            issues.append(Issue("ERROR", path, f"startup gate missing required term: {required}"))
+
+    ledger_section = sections.get("Execution Ledger", "")
+    ledger_rows = sorted(set(LEDGER_ROW_RE.findall(ledger_section)))
+    if not ledger_rows:
+        issues.append(Issue("ERROR", path, "no execution ledger row IDs found"))
 
     if project:
         records = parse_records(project / "docs" / "ai-control")

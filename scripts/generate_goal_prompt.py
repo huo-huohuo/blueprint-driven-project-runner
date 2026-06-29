@@ -2,8 +2,8 @@
 """Generate a goal-mode prompt from ready executable blueprint records.
 
 Examples:
-  python generate_goal_prompt.py --project C:/repo --module "Inventory" --record INVENTORY-IMPORT-001
-  python generate_goal_prompt.py --project . --module "Reporting" --record REPORTING-UI-001 --out docs/ai-control/reporting/goal-prompts/reporting-ui.md
+  python generate_goal_prompt.py --project C:/repo --module "Inventory" --record INVENTORY-IMPORT-001 --work-slice WS-INVENTORY-001 --ledger-row LEDGER-INVENTORY-001
+  python generate_goal_prompt.py --project . --module "Reporting" --record REPORTING-UI-001 --work-slice WS-REPORTING-001 --ledger-row LEDGER-REPORTING-001 --out docs/ai-control/reporting/goal-prompts/reporting-ui.md
 """
 
 from __future__ import annotations
@@ -126,8 +126,8 @@ def render_prompt(
     root: Path,
     module: str,
     records: list[dict[str, object]],
-    work_slice: str | None,
-    ledger_rows: list[str] | None = None,
+    work_slice: str,
+    ledger_rows: list[str],
 ) -> str:
     record_sections: list[str] = []
     verification_lines: list[str] = []
@@ -152,8 +152,7 @@ Acceptance:
         forbidden_lines.append(f"- {record_id}: {compact(record.get('Forbidden Result', []))}")  # type: ignore[arg-type]
 
     record_ids = ", ".join(compact(record.get("ID", [])) for record in records)  # type: ignore[arg-type]
-    slice_value = work_slice or "DECISION_NEEDED: provide or create a bounded work slice before editing"
-    ledger_row_lines = "\n".join(f"- {row}" for row in (ledger_rows or [])) or "- DECISION_NEEDED: create ledger rows before long-running execution"
+    ledger_row_lines = "\n".join(f"- {row}" for row in ledger_rows)
 
     return f"""# Goal Prompt: {module}
 
@@ -164,6 +163,20 @@ Use $blueprint-driven-project-runner.
 Project root: {root}
 Module: {module}
 Mode: Execution
+
+## Target Mode Startup Gate
+
+Gate result: must be PASS before implementation.
+
+PASS only if:
+- project operating standard or equivalent repo rules have been read
+- referenced blueprint records are ready or accepted: {record_ids}
+- work slice is bounded: {work_slice}
+- execution ledger file and row IDs are present: docs/ai-control/91-execution-ledger.md / {", ".join(ledger_rows)}
+- this goal prompt passes lint or manual lint is documented
+- execution contract states allowed scope, forbidden scope, data policy, verification, evidence, and stop condition
+
+If the gate is FAIL, do not edit product code. Switch to Blueprint Compiler, Blueprint Audit, Ledger Compiler, Goal Prompt, Status, or Recovery mode.
 
 ## First Principle
 
@@ -185,7 +198,7 @@ Complete the referenced executable blueprint records and execution ledger rows e
 
 ## Work Slice
 
-ID: {slice_value}
+ID: {work_slice}
 Blueprint Records: {record_ids}
 Outcome: implement and verify only the referenced records.
 Appetite: bounded to the referenced records and their verification plan.
@@ -251,8 +264,8 @@ def main() -> int:
     parser.add_argument("--project", required=True, help="Project root")
     parser.add_argument("--module", required=True, help="Module name")
     parser.add_argument("--record", action="append", dest="records", required=True, help="Blueprint record ID; may repeat")
-    parser.add_argument("--work-slice", help="Optional work slice ID")
-    parser.add_argument("--ledger-row", action="append", dest="ledger_rows", help="Execution ledger row ID; may repeat")
+    parser.add_argument("--work-slice", required=True, help="Bounded work slice ID")
+    parser.add_argument("--ledger-row", action="append", dest="ledger_rows", required=True, help="Execution ledger row ID; may repeat")
     parser.add_argument("--out", help="Write prompt to this file instead of stdout")
     args = parser.parse_args()
 
